@@ -22,13 +22,13 @@ const POS={
 const DALE={cls:'lot-dale',cw:986,ch:1401,ox:39,oy:0,tint:'cig',alt:'Dale smokes and studies a very long receipt',F:{
  idle:  {src:'assets/lot-dale-smoke-idle.webp?v=2',   ember:[712,310], glow:.30},
  drag:  {src:'assets/lot-dale-smoke-drag.webp?v=2',   ember:[716,288], glow:.30},
- exhale:{src:'assets/lot-dale-smoke-exhale.webp?v=2', ember:[309,235], mouth:[650,218], glow:.35},
+ exhale:{src:'assets/lot-dale-smoke-exhale.webp?v=2', ember:[309,235], mouth:[650,132], glow:.35},
  flick: {src:'assets/lot-dale-smoke-flick.webp?v=2',  ember:[138,607], glow:.40}}};
 const LENNY={cls:'lot-lenny',cw:1043,ch:1441,ox:25,oy:7,tint:'joint',alt:'Lenny sits on the hood, smoking a joint and scrolling his phone',F:{
  idle:  {src:'assets/lot-lenny-joint-idle.webp',   ember:[647,389], glow:.32},
  drag:  {src:'assets/lot-lenny-joint-drag.webp',   ember:[665,363], glow:.32},
  hold:  {src:'assets/lot-lenny-joint-hold.webp',   ember:[326,313], glow:.45},
- exhale:{src:'assets/lot-lenny-joint-exhale.webp', ember:[614,794], mouth:[578,221], glow:.38},
+ exhale:{src:'assets/lot-lenny-joint-exhale.webp', ember:[614,794], mouth:[578,135], glow:.38},
  giggle:{src:'assets/lot-lenny-joint-giggle.webp', ember:[205,973], glow:.40}}};
 const CAR={src:'assets/lot-car.webp'};
 
