@@ -33,11 +33,13 @@ function showSlide(){const s=slides[i%slides.length];i++;
  reset(/▲/.test(s.b)?'tk-up':/▼/.test(s.b)?'tk-down':'');const a=document.createElement('span');a.className='tk-main';a.textContent=s.a;const b=document.createElement('small');b.textContent=s.b;screen.append(a,b);restartFlash();return 2800}
 function showTrade(t){reset(t.buy?'tk-buy':'tk-sell');const a=document.createElement('span');a.className='tk-main';a.textContent=(t.buy?'▲ BUY ':'▼ SELL ')+usd(t.usd);const b=document.createElement('small');b.textContent=compact(t.tokens)+' $'+sym;screen.append(a,b);restartFlash();return 1300}
 function step(){clearTimeout(timer);let wait=1000;if(view==='live'&&!document.hidden){const t=queue.shift();wait=t?showTrade(t):showSlide()}timer=setTimeout(step,wait)}
+const BIG_TRADE=500;
+window.tokenMood=()=>{const c=lastPair&&lastPair.priceChange;const v=c&&(c.h24!=null?c.h24:c.h1);if(v==null)return null;return{dir:v>=0?'up':'down',pct:v,sym}};
 function ingest(trades){
  recent=trades.slice().sort((a,b)=>b.ts-a.ts).slice(0,40);
  const fresh=trades.filter(t=>!seen.has(t.id));trades.forEach(t=>seen.add(t.id));
  if(!primed){primed=true;return}// first load = history, don't replay it
- fresh.sort((a,b)=>a.ts-b.ts);queue.push(...fresh.slice(-10));if(queue.length>12)queue.splice(0,queue.length-12)}
+ fresh.sort((a,b)=>a.ts-b.ts);const big=fresh.filter(x=>x.usd>=BIG_TRADE).sort((a,b)=>b.usd-a.usd)[0];if(big)window.dispatchEvent(new CustomEvent('bigtrade',{detail:{buy:big.buy,usd:big.usd}}));queue.push(...fresh.slice(-10));if(queue.length>12)queue.splice(0,queue.length-12)}
 function chartView(){if(candles.length<3){reset();screen.textContent='NO CHART YET';return}reset('tk-bigchart');const cv=document.createElement('canvas');cv.className='tk-canvas';cv.setAttribute('aria-label','5 minute candle chart');const sm=document.createElement('small');const last=candles[candles.length-1],first=candles[0];sm.textContent='$'+sym+' 5M '+pct((last[4]-first[1])/first[1]*100);screen.className='screen tk-bigchart '+(last[4]>=first[1]?'tk-up':'tk-down');screen.append(cv,sm);drawChart(cv)}
 function tradesView(){reset('tk-list');if(!recent.length){screen.textContent='WAITING FOR TRADES…';return}const age=ts=>{const x=Math.max(0,Math.round((Date.now()-ts)/1000));return x<60?x+'s':Math.round(x/60)+'m'};recent.slice(0,8).forEach(t=>{const row=document.createElement('div');row.className='tk-row '+(t.buy?'b':'s');[[t.buy?'BUY':'SELL','span'],[usd(t.usd),'span'],[compact(t.tokens),'span'],[age(t.ts),'i']].forEach(([txt,tag])=>{const c=document.createElement(tag);c.textContent=txt;row.append(c)});screen.append(row)})}
 function buyView(){reset('tk-buyview');const a=document.createElement('span');a.className='tk-main';a.textContent=lastPair?'$'+sym+' '+price(lastPair.priceUsd):'$'+sym;screen.append(a);
