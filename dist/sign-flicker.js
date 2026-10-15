@@ -20,6 +20,7 @@ function sign(roomSel,cls){
  schedule();
  return {now:i=>run(patterns[i??Math.floor(Math.random()*patterns.length)](),()=>{})};
 }
+window.makeSignFlicker=sign;
 // Independent timers so the signs never flicker in sync.
 window.signFlicker={store:sign('#counter','store-open'),lotOpen:sign('#parking','lot-open'),motel:sign('#parking','motel')};
 })();

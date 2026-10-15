@@ -9,7 +9,7 @@ function loadPose(src){const img=new Image();img.src=src;return img.decode().the
 Promise.all(poses.map(loadPose)).then(images=>{window.lennyPoseImages=images;framesReady=true;pose(0);watch.disabled=false;watch.textContent='WATCH LENNY TAKE A SIP →';document.querySelector('#gag-status').textContent='Animation ready.'}).catch(()=>{watch.disabled=false;watch.textContent='TALK TO LENNY →';document.querySelector('#gag-status').textContent='Animation could not load. Dialogue is still available.'});let timers=[],blinkTimer=null,running=false,scriptIndex=0,framesReady=false;let targetX=0,targetY=0,x=0,y=0,frame=null,lastTime=0;
 function enabled(){return !media.matches&&!document.body.classList.contains('motion-paused')&&!document.hidden}
 function later(fn,ms){const id=setTimeout(fn,ms);timers.push(id);return id}
-function stop(){timers.forEach(clearTimeout);timers=[];running=false;puddle.classList.remove('on');actor.classList.remove('phone-check','performance-active');rig.classList.remove('blinking');scene.classList.remove('phone-beat');pose(0);}
+function stop(){timers.forEach(clearTimeout);timers=[];running=false;puddle.classList.remove('on');if(window.dalePerformance&&window.dalePerformance.stop&&!stop.fromDale)window.dalePerformance.stop();actor.classList.remove('phone-check','performance-active');rig.classList.remove('blinking');scene.classList.remove('phone-beat');pose(0);}
 function blink(){if(!enabled()||running||scene.classList.contains('hidden'))return;rig.classList.add('blinking');later(()=>rig.classList.remove('blinking'),145)}
 function scheduleBlink(){clearTimeout(blinkTimer);blinkTimer=setTimeout(()=>{blink();scheduleBlink()},4400+Math.random()*3200)}
 const exchanges=[['Dale. I’m up twelve cents.','Good. You can cover the register shortage.'],['Bro. I think this is my last shift.','You said that yesterday. And Tuesday.'],['I’m calling this a business expense.','That is your fourth slushie.']];
@@ -37,6 +37,7 @@ function coinCheck(forced){
  stop();running=true;actor.classList.add('performance-active');
  const m=forced?{...marketMood(),dir:forced}:marketMood(),up=m.dir==='up',L=MOOD_LINES[m.dir];
  if(!enabled()||!framesReady){say('LENNY',up?'We are SO back.':'Who sold?!');running=false;actor.classList.remove('performance-active');return}
+ window.dalePerformance&&window.dalePerformance.coinReact(m.dir);
  const n=moodIndex++,pair=up?[10,11]:[12,13],pct=(forced||m.pct==null)?'':' '+(m.pct>=0?'+':'')+m.pct.toFixed(1)+'% today.';
  pose(7);later(()=>pose(8),650);later(()=>puddle.classList.add('on'),760);
  later(()=>{pose(9);say('LENNY','Hold on. Checking the bag...')},1700);

@@ -136,3 +136,24 @@ canvas.tk-big{width:100%;height:300px;margin:6px 0 4px}
 .open-flicker.motel{left:87.5%;top:39.5%;width:4.8%;height:3.8%;border-radius:4px}
 .open-flicker.motel:after{box-shadow:0 0 16px 3px #ff743b66}
 .open-flicker.lot-open:after{inset:-3px;box-shadow:0 0 16px 3px #ff2d5a55,0 0 28px 6px #2a63ff33}
+
+/* Parking lot ambient life */
+.lot-star{position:absolute;width:var(--s,3px);height:var(--s,3px);border-radius:50%;background:#fff;box-shadow:0 0 6px 1px #cfe0ffaa;opacity:.25;z-index:1;pointer-events:none;animation:lot-twinkle var(--d,4s) ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes lot-twinkle{0%,100%{opacity:.12;transform:scale(.7)}45%{opacity:1;transform:scale(1.2)}70%{opacity:.35;transform:scale(.9)}}
+.motion-paused .lot-star{animation-play-state:paused}
+.open-flicker.lot-lamp-a{left:71.8%;top:28.4%;width:1.9%;height:3.6%;border-radius:50%}
+.open-flicker.lot-lamp-a:after{inset:-14px;box-shadow:0 0 30px 12px #ffc45a55}
+.open-flicker.lot-lamp-b{left:59.2%;top:38.3%;width:1.9%;height:3%;border-radius:50%}
+.open-flicker.lot-lamp-b:after{inset:-12px;box-shadow:0 0 26px 10px #ffc45a44}
+.open-flicker.lot-canopy{left:86.6%;top:4.6%;width:9.4%;height:3.4%;border-radius:6px}
+.open-flicker.lot-canopy:after{inset:-4px;box-shadow:0 0 20px 6px #fff3c444}
+.lot-win{position:absolute;background:#0a1226;opacity:0;transition:opacity .18s;pointer-events:none;z-index:1;border-radius:2px}.lot-win.off{opacity:.93}
+.lot-pulse{position:absolute;left:14%;top:80%;width:64%;height:17%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(var(--c,106,250,171),.75) 0,rgba(var(--c,106,250,171),.28) 45%,transparent 72%);mix-blend-mode:screen;opacity:0;pointer-events:none;z-index:1}
+.lot-pulse.go{animation:lot-pulse .75s ease-out}
+@keyframes lot-pulse{0%{opacity:0;transform:scale(.7)}18%{opacity:var(--a,.6)}100%{opacity:0;transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.lot-star{animation:none;opacity:.5}.lot-pulse{display:none}}
+/* Streetlamps: dim the whole bloom with a feathered mask instead of a hard disc */
+.open-flicker.lot-lamp-a,.open-flicker.lot-lamp-b{border-radius:50%;-webkit-mask-image:radial-gradient(ellipse at center,#000 18%,rgba(0,0,0,.55) 45%,transparent 72%);mask-image:radial-gradient(ellipse at center,#000 18%,rgba(0,0,0,.55) 45%,transparent 72%)}
+.open-flicker.lot-lamp-a{left:70.4%;top:26.6%;width:4.6%;height:9%}
+.open-flicker.lot-lamp-b{left:58%;top:36.2%;width:4%;height:7.2%}
+.open-flicker.lot-lamp-a:after,.open-flicker.lot-lamp-b:after{inset:25%;box-shadow:0 0 22px 10px #ffc45a44}
