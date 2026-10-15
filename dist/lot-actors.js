@@ -1,74 +1,105 @@
 /* Parking lot: clean background + separate car / Lenny / Dale layers (replaces the characters painted into the scene).
-   Dale smokes on a loop: idle (cigarette in mouth) -> drag -> exhale (puff) -> idle, with an occasional ash flick. */
+   Dale smokes a cigarette: idle -> drag -> exhale -> idle (ash flick with sparks every 3rd cycle).
+   Lenny smokes a joint:   idle -> drag -> hold -> exhale -> giggle -> idle.
+   Both share an "exhale slot" so their big clouds never land on the same beat.
+   Smoke, glowing embers and sparks are drawn by lot-smoke.js (canvas). */
 (()=>{
 const lot=document.querySelector('#parking');if(!lot)return;
 const back=lot.querySelector('.backdrop');
 const media=matchMedia('(prefers-reduced-motion: reduce)');
 const rnd=(a,b)=>a+Math.random()*(b-a);
-// Positions are percent of the scene (1672x941). Tweak here to move or scale a layer.
-const L={
- car:   {src:'assets/lot-car.webp',   cls:'lot-car',   x:22.0, y:40.4, w:39.8, z:2},
- lenny: {src:'assets/lot-lenny.webp', cls:'lot-lenny', x:31.6, y:34.1, w:20.3, z:3},
- dale:  {src:'assets/lot-dale-smoke-idle.webp', cls:'lot-dale', x:68.0, y:40.4, w:18.3, z:2}
-};
-// Dale's frames share one crop (986x1401). Points are pixels of the original 1086x1448 canvas minus the crop offset (39,0).
-const CW=986,CH=1401,OX=39;
-const F={
- idle:  {src:'assets/lot-dale-smoke-idle.webp',   ember:[712,310]},
- drag:  {src:'assets/lot-dale-smoke-drag.webp',   ember:[716,288]},
- exhale:{src:'assets/lot-dale-smoke-exhale.webp', ember:[309,235],mouth:[650,218]},
- flick: {src:'assets/lot-dale-smoke-flick.webp',  ember:[138,607]}
-};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const ok=()=>!media.matches&&!document.hidden&&!document.body.classList.contains('motion-paused')&&!lot.classList.contains('hidden');
-const pct=([x,y])=>[((x-OX)/CW*100).toFixed(2),(y/CH*100).toFixed(2)];
 
-const imgs=[L.car,L.lenny,...Object.values(F)].map(o=>{const i=new Image();i.src=o.src;return i.decode().catch(()=>{})});
-Promise.all(imgs).then(()=>{
- if(back)back.src='assets/parking-clean.webp';
- let daleImg,smoke;
- for(const k of ['car','lenny','dale']){
-  const o=L[k];let el;
-  if(k==='dale'){
-   el=document.createElement('div');el.className='lot-layer '+o.cls;
-   el.style.cssText=`left:${o.x}%;top:${o.y}%;width:${o.w}%;aspect-ratio:${CW}/${CH};z-index:${o.z}`;
-   daleImg=document.createElement('img');daleImg.src=o.src;daleImg.alt='Dale smokes and studies a very long receipt';daleImg.draggable=false;daleImg.className='lot-dale-img';
-   smoke=document.createElement('div');smoke.className='lot-smoke';smoke.setAttribute('aria-hidden','true');
-   el.append(daleImg,smoke);
-  }else{
-   el=document.createElement('img');el.className='lot-layer '+o.cls;el.src=o.src;
-   el.alt=k==='car'?'Rusty red sedan':'Lenny sits on the hood, scrolling his phone';el.draggable=false;
-   el.style.cssText=`left:${o.x}%;top:${o.y}%;width:${o.w}%;z-index:${o.z}`;
-  }
-  lot.append(el);
+// Positions are percent of the scene (1672x941). Tweak here to move or scale a layer.
+const POS={
+ car:   {x:22.0, y:40.4, w:39.8, z:2},
+ lenny: {x:31.6, y:34.1, w:20.3, z:3},
+ dale:  {x:68.0, y:40.4, w:18.3, z:2}
+};
+// Each actor's frames share one crop. Points are pixels of the original 1086x1448 canvas; (ox,oy) is the crop offset.
+// ember = the burning tip; mouth = where the exhale leaves; glow = resting ember brightness for that pose (0..1).
+const DALE={cls:'lot-dale',cw:986,ch:1401,ox:39,oy:0,tint:'cig',alt:'Dale smokes and studies a very long receipt',F:{
+ idle:  {src:'assets/lot-dale-smoke-idle.webp?v=2',   ember:[712,310], glow:.30},
+ drag:  {src:'assets/lot-dale-smoke-drag.webp?v=2',   ember:[716,288], glow:.30},
+ exhale:{src:'assets/lot-dale-smoke-exhale.webp?v=2', ember:[309,235], mouth:[650,218], glow:.35},
+ flick: {src:'assets/lot-dale-smoke-flick.webp?v=2',  ember:[138,607], glow:.40}}};
+const LENNY={cls:'lot-lenny',cw:1043,ch:1441,ox:25,oy:7,tint:'joint',alt:'Lenny sits on the hood, smoking a joint and scrolling his phone',F:{
+ idle:  {src:'assets/lot-lenny-joint-idle.webp',   ember:[647,389], glow:.32},
+ drag:  {src:'assets/lot-lenny-joint-drag.webp',   ember:[665,363], glow:.32},
+ hold:  {src:'assets/lot-lenny-joint-hold.webp',   ember:[326,313], glow:.45},
+ exhale:{src:'assets/lot-lenny-joint-exhale.webp', ember:[614,794], mouth:[578,221], glow:.38},
+ giggle:{src:'assets/lot-lenny-joint-giggle.webp', ember:[205,973], glow:.40}}};
+const CAR={src:'assets/lot-car.webp'};
+
+let exhaleUntil=0;                                   // shared slot: one big cloud at a time
+async function exhaleSlot(ms){while(Date.now()<exhaleUntil)await wait(200);exhaleUntil=Date.now()+ms+700}
+
+const preload=[CAR.src,...Object.values(DALE.F).map(f=>f.src),...Object.values(LENNY.F).map(f=>f.src)].map(s=>{const i=new Image();i.src=s;return i.decode().catch(()=>{})});
+Promise.all(preload).then(()=>{
+ if(back)back.src='assets/parking-clean.webp?v=2';
+ const smoke=window.LotSmoke?window.LotSmoke.create(lot):null;
+
+ function build(def,pos){
+  const el=document.createElement('div');el.className='lot-layer '+def.cls;
+  el.style.cssText=`left:${pos.x}%;top:${pos.y}%;width:${pos.w}%;aspect-ratio:${def.cw}/${def.ch};z-index:${pos.z}`;
+  const img=document.createElement('img');img.src=def.F.idle.src;img.alt=def.alt;img.draggable=false;img.className='lot-actor-img';
+  el.append(img);lot.append(el);
+  const a={el,img,def,pose:'idle',flare:0,flareT:0};
+  // a point of this actor in "u" units (fractions of the lot width), following the layer's idle bob / bass bounce
+  a.at=(px,py)=>{const r=el.getBoundingClientRect(),L=lot.getBoundingClientRect();if(!L.width)return null;
+   return {x:(r.left-L.left+(px-def.ox)/def.cw*r.width)/L.width,y:(r.top-L.top+(py-def.oy)/def.ch*r.height)/L.width}};
+  a.ember=()=>a.at(...def.F[a.pose].ember);
+  a.mouth=()=>def.F.exhale.mouth?a.at(...def.F.exhale.mouth):null;
+  a.show=n=>{a.pose=n;img.src=def.F[n].src};
+  a.hold=async(name,ms)=>{a.show(name);const end=Date.now()+ms;while(Date.now()<end){if(!ok()){await wait(500);continue}await wait(100)}};
+  a.flareUp=()=>{a.flare=1;a.flareT=performance.now()};      // ember flares on a drag, then settles
+  if(smoke)smoke.glow(()=>{
+   const base=def.F[a.pose].glow||.3,age=(performance.now()-a.flareT)/1300,f=a.flare?Math.max(0,1-age):0;
+   const p=a.ember();if(!p)return null;return {x:p.x,y:p.y,level:Math.max(base,f)}});
+  return a;
  }
+
+ // car first (behind), then Lenny, then Dale
+ const car=document.createElement('img');car.className='lot-layer lot-car';car.src=CAR.src;car.alt='Rusty red sedan';car.draggable=false;
+ car.style.cssText=`left:${POS.car.x}%;top:${POS.car.y}%;width:${POS.car.w}%;z-index:${POS.car.z}`;lot.append(car);
+ const lenny=build(LENNY,POS.lenny),dale=build(DALE,POS.dale);
  lot.classList.add('lot-layered');
+ if(media.matches||!smoke)return;                    // reduced motion: idle frames, no smoke
 
- // ---- smoke ----
- function puff(at,{dx=[-150,150],dy=[-800,-500],s=[2.4,3.6],o=.5,dur=[2.6,3.8],size=3}={}){
-  const [x,y]=pct(at),p=document.createElement('i');p.className='lot-puff';
-  p.style.cssText=`left:${x}%;top:${y}%;width:${size}%;--dx:${rnd(dx[0],dx[1]).toFixed(0)}%;--dy:${rnd(dy[0],dy[1]).toFixed(0)}%;--s:${rnd(s[0],s[1]).toFixed(2)};--o:${o};animation-duration:${rnd(dur[0],dur[1]).toFixed(2)}s`;
-  p.addEventListener('animationend',()=>p.remove());smoke.append(p);
- }
- const trickle=()=>puff(F.idle.ember);
- const bigExhale=()=>{for(let i=0;i<7;i++)setTimeout(()=>{if(ok())puff(F.exhale.mouth,{dx:[250,700],dy:[-350,-150],s:[4,6.5],o:.6,dur:[2.6,3.6],size:4})},i*170)};
- const ash=()=>{/* ash flecks are painted into the flick frame */};
- const show=n=>{daleImg.src=F[n].src};
+ // ---- thin curling wisps off every lit tip, all the time ----
+ const wispers=[[dale,{idle:.6,drag:.3,exhale:.3,flick:.4}],[lenny,{idle:.6,drag:.3,hold:.5,exhale:.3,giggle:.45}]];
+ setInterval(()=>{for(const [a,prob] of wispers){if(Math.random()<(prob[a.pose]||0))smoke.emit('wisp',a.ember(),{tint:a.def.tint})}},170);
 
- // ---- loop ----
- if(media.matches){show('idle');return}
- let cycles=0,trickleTimer=null;
- const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
- async function hold(name,ms){show(name);const end=Date.now()+ms;while(Date.now()<end){if(!ok()){await wait(500);continue}await wait(100)}}
- (function startTrickle(){clearInterval(trickleTimer);trickleTimer=setInterval(()=>{if(ok()&&lot.dataset.pose==='idle')trickle()},rnd(650,900)|0)})();
- (async function loop(){
+ // ---- Dale: cigarette ----
+ (async function daleLoop(){
+  let cycles=0;
   for(;;){
-   lot.dataset.pose='idle';await hold('idle',rnd(3500,6500));
-   lot.dataset.pose='drag';await hold('drag',rnd(1000,1300));
-   lot.dataset.pose='exhale';bigExhale();await hold('exhale',1900);
-   cycles++;
-   if(cycles%3===0){lot.dataset.pose='flick';ash();await hold('flick',1400)}
+   dale.pose='idle';await dale.hold('idle',rnd(3500,6500));
+   dale.flareUp();await dale.hold('drag',rnd(1000,1300));
+   await exhaleSlot(2100);
+   smoke.burst('cloud',dale.mouth,12,115,{tint:'cig'});
+   setTimeout(()=>smoke.burst('puffsmall',dale.mouth,4,260,{tint:'cig'}),1100);
+   await dale.hold('exhale',2000);
+   if(++cycles%3===0){setTimeout(()=>smoke.spark(dale.ember(),8),260);await dale.hold('flick',1400)}
+  }
+ })();
+
+ // ---- Lenny: joint (starts a beat later so the two don't sync up) ----
+ (async function lennyLoop(){
+  await wait(2200);
+  for(;;){
+   lenny.pose='idle';await lenny.hold('idle',rnd(4000,7000));
+   lenny.flareUp();await lenny.hold('drag',rnd(1100,1500));
+   await lenny.hold('hold',rnd(1300,1900));                              // holding it in: no cloud
+   await exhaleSlot(2500);
+   smoke.burst('cloud',lenny.mouth,15,120,{tint:'joint'});
+   setTimeout(()=>smoke.burst('puffsmall',lenny.mouth,4,260,{tint:'joint'}),1300);
+   await lenny.hold('exhale',2400);
+   smoke.burst('puffsmall',lenny.mouth,3,300,{tint:'joint'});            // stoned giggle leaks a few small puffs
+   await lenny.hold('giggle',rnd(1800,2400));
   }
  })();
 });
-window.lotLayout=L;
+window.lotLayout=POS;
 })();
