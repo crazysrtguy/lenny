@@ -1,24 +1,18 @@
-/* Scene animation uses the approved artwork at its original coordinates.
- * Full-canvas CSS clips preserve source pixels; clean plates reveal hidden scenery.
- * No animated image is regenerated at runtime. */
+/* Parking and stockroom use intact approved masters.
+ * Do not cut character silhouettes with approximate masks.
+ * Environmental overlays animate independently of character artwork. */
 (()=>{
 const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)];
 const systemReduce=matchMedia('(prefers-reduced-motion: reduce)');let motion=!systemReduce.matches,stereo=false,fan=1,active='counter',ambient=null,bassTimer=null,audioContext=null,reactionTimers=new Map();
 function add(parent,html){parent.insertAdjacentHTML('beforeend',html)}
 function layer(parent,cls,src,clip){add(parent,`<div class="art-layer ${cls}" aria-hidden="true" style="clip-path:polygon(${clip})"><img src="assets/${src}.png" alt="" draggable="false"></div>`)}
 const parking=q('#parking'),stock=q('#stockroom'),counter=q('#counter');
-// Independent car and characters cut from the exact full-scene reference.
-parking.classList.remove('flat');parking.querySelector('.backdrop').src='assets/parking-clean.png';
-layer(parking,'lot-car','parking','14.8% 77%, 15.3% 73.2%, 17.1% 72%, 17.7% 65.2%, 20% 63.2%, 29% 57.8%, 30.1% 52.2%, 33% 49.8%, 39.5% 49.2%, 40.7% 44.8%, 41.8% 42%, 42% 39%, 43.1% 35.8%, 45% 34.7%, 47.5% 35.8%, 48.7% 39%, 47% 43%, 46% 45%, 48.5% 49%, 58.3% 50%, 61.5% 52.5%, 63% 56%, 64% 60%, 67.5% 64%, 69% 71%, 69.8% 73%, 69.2% 76%, 68% 78%, 67.3% 84%, 65.8% 87%, 63.7% 87.8%, 61.5% 85%, 52.2% 87%, 50.8% 90%, 48% 88.5%, 45% 87%, 31.8% 86%, 29.2% 89.8%, 26% 90.6%, 23.4% 89%, 21.4% 85%, 16.4% 83%, 15% 81%');
-layer(parking,'lot-dale','parking','71.7% 45%, 72.6% 42%, 73.1% 40.5%, 75.3% 39.4%, 77.1% 40%, 78.4% 41.7%, 79.2% 45%, 78.1% 48.3%, 78.7% 49.8%, 81.7% 49.6%, 82.5% 50.8%, 82.1% 54%, 80.5% 54.7%, 79% 53.5%, 78% 55.6%, 78.1% 60%, 77.5% 62.7%, 78.1% 67%, 78.2% 75%, 79.8% 81.9%, 79.4% 85.4%, 76.7% 85.9%, 75.1% 84.6%, 72.7% 85.8%, 70.9% 84.1%, 71.4% 81%, 72.3% 75%, 72.2% 67%, 71.3% 63%, 71.9% 59%, 70.5% 56%, 70.9% 50%');
-// Restore foreground framing from source so near planes move independently.
-layer(parking,'lot-pump','parking','93% 0%, 100% 0%, 100% 100%, 85.8% 100%, 86.5% 78%, 88.2% 75%, 91% 75%, 92% 60%, 93.8% 48%, 96% 46%, 96.5% 20%, 93% 20%');
-layer(parking,'lot-door','parking','0% 0%, 10.1% 0%, 10.1% 100%, 0% 100%');
+// Preserve the complete face, hair, hands, and limbs in each approved master.
+parking.classList.remove('flat');parking.querySelector('.backdrop').src='assets/parking.png';
+// Ambient overlays remain independent without clipping the scene artwork.
 add(parking,`<div class="neon-halo" aria-hidden="true"></div><div class="motel-halo" aria-hidden="true"></div><div class="pavement-light" aria-hidden="true"></div><div class="car-lamps" aria-hidden="true"><i></i><i></i></div><button class="hotspot stereo-control" id="stereo" aria-pressed="false" aria-label="Turn car stereo on"><span class="hint">TURN UP THE BASS ♫</span></button><button class="hotspot horn-control" id="horn" aria-label="Honk the car horn"><span class="hint">BEEP AT CORPORATE</span></button><button class="hotspot dumpster-control" id="dumpster" aria-label="Disturb the dumpster"><span class="hint">DEFINITELY NOTHING IN HERE</span></button><div class="dumpster-eyes" aria-hidden="true"><i></i><i></i></div><div class="exhaust" aria-hidden="true"><i></i><i></i><i></i></div>`);
 for(let i=0;i<7;i++)add(parking,`<i class="moth" aria-hidden="true" style="--i:${i};left:${57+i*2.5}%;top:${29+(i%3)*3}%"></i>`);
-stock.classList.remove('flat');stock.querySelector('.backdrop').src='assets/stockroom-clean.png';
-layer(stock,'stock-lenny','stockroom','24% 81%, 23.8% 65%, 24.7% 60%, 25% 56%, 24% 51%, 24.5% 47%, 26% 43%, 27.2% 39%, 27.2% 35%, 28% 31%, 28.8% 27%, 31.6% 24%, 34% 24%, 36.1% 27.3%, 36% 30.5%, 34.7% 34%, 35% 37%, 34.2% 40%, 34% 43.8%, 36.5% 43%, 40% 43.5%, 40.5% 51%, 43.6% 55.5%, 43.5% 59%, 42.2% 60%, 42.2% 70%, 45% 76%, 45.2% 80.2%, 40.3% 82.1%, 37.8% 80.5%, 36.6% 76.8%, 35.7% 81.2%, 32.9% 84.1%, 29.5% 83.7%, 27.9% 81.2%');
-layer(stock,'stock-dale','stockroom','63.2% 28%, 65.2% 28%, 66.2% 29.8%, 68.5% 31%, 71.5% 32.8%, 73% 31%, 73.4% 27%, 74.7% 23%, 76.5% 21.3%, 78.4% 21.7%, 80% 24.7%, 79.6% 27%, 81.6% 31.8%, 81.5% 33.4%, 80% 34.1%, 81.9% 36%, 84.2% 39.8%, 85.7% 43.1%, 85% 47%, 82.6% 50.4%, 82% 53%, 82.6% 59%, 82.3% 66%, 81.2% 73.4%, 82.6% 78.7%, 82.2% 82.6%, 79.7% 83%, 78.5% 81%, 78.6% 77.5%, 77.8% 69%, 76.1% 76.3%, 76% 79.5%, 73.3% 81.4%, 70.1% 81%, 70.5% 78.6%, 72% 77%, 73.3% 70%, 74.6% 61.5%, 75% 55%, 74.6% 51%, 75% 46%, 74% 39%, 71% 37%, 68.5% 34.7%, 65.1% 31%, 63% 30.1%');
+stock.classList.remove('flat');stock.querySelector('.backdrop').src='assets/stockroom.png';
 add(stock,`<div class="bulb-light" aria-hidden="true"></div><div class="fan-motion" aria-hidden="true"><svg viewBox="0 0 100 100"><g class="fan-blades"><path d="M50 50 C26 52 12 28 26 17 C39 6 52 22 50 50M50 50 C48 26 72 12 83 26 C94 39 78 52 50 50M50 50 C74 48 88 72 74 83 C61 94 48 78 50 50M50 50 C52 74 28 88 17 74 C6 61 22 48 50 50" fill="#998a67"/><circle cx="50" cy="50" r="9" fill="#292b27"/></g><circle cx="50" cy="50" r="46" fill="none" stroke="#181e20" stroke-width="3"/><g stroke="#161b1c" stroke-width="1" opacity=".7"><path d="M50 3V97M3 50H97M17 17L83 83M83 17L17 83"/><circle cx="50" cy="50" r="34" fill="none"/><circle cx="50" cy="50" r="21" fill="none"/></g></svg></div><button class="hotspot fan-control" id="fan" aria-label="Change fan speed" aria-describedby="fan-status"><span class="hint">FAN: LOW → HIGH → OFF</span></button><span class="sr-only" id="fan-status" role="status">Fan on low</span><div class="crt-glow" aria-hidden="true"></div><div class="board-pulse" aria-hidden="true"></div><div class="flying-notes" aria-hidden="true"><i>BUY MILK</i><i>NOT A CULT</i><i>QUIT?</i></div><button class="hotspot lamp-control" id="lamp" aria-label="Tap the stockroom light"><span class="hint">TURN ON THE BIG IDEAS</span></button>`);
 for(let i=0;i<9;i++)add(stock,`<i class="dust" aria-hidden="true" style="--i:${i};left:${36+i*3}%;top:${12+(i%4)*9}%"></i>`);
 // Counter ambient details and non-blocking feedback effects.
