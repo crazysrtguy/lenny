@@ -4,26 +4,23 @@ Interactive cartoon convenience-store website featuring Lenny and Dale.
 
 ## Run locally
 
-Serve the static site:
-
 ```sh
 python3 -m http.server 8000 --directory dist
 ```
 
-Open http://localhost:8000. No build or dependencies required.
+Open http://localhost:8000. No build or dependencies required. Deploy the `dist` directory on a static host.
 
-## Included
+## Scene animation
 
-- Layered counter scene with mouse parallax and character dialogue
-- Register with buying instructions (token information is not announced)
-- Slushie spill interaction and hot-dog reactions
-- Parking-lot and stockroom reference scenes with clickable hotspots
-- Lore, proposed roadmap, and PNG meme maker
-- Mobile scene panning, keyboard controls, and reduced-motion support
-- PNG artwork in `dist/assets`
+- Counter: character idle/reaction motion, neon and phone glow, steam, slushie spill, service bell, receipt printing.
+- Parking lot: separate source-art car and Dale planes over a clean background, stereo suspension bounce with optional synthesized bass, horn/headlight reaction, dumpster eyes, moths and exhaust.
+- Stockroom: separate character planes, fan speed controls, flying notes, drifting dust, bulb and CRT effects.
+- Destination-specific room transitions, motion toggle, reduced-motion support, and pausing off-screen animations.
 
-Parking-lot and stockroom artwork is currently flattened. Character rigging and precise scene alignment remain work in progress.
+Source artwork is clipped with CSS polygons. Scene edges and timing still need browser visual review. These are character reaction motions, not lip-synced dialogue or a full skeletal rig.
 
-## Hosting
+## Content
 
-Publish `dist` as the static output directory. The current preview is https://lennys-last-shift.swiftcomet.chatgpt.site.
+Lore, proposed roadmap, how-to-buy placeholder, community placeholder, and downloadable PNG caption maker. Token network, contract address and official links have not been announced.
+
+Live preview: https://lennys-last-shift.swiftcomet.chatgpt.site
