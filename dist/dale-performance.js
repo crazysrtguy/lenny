@@ -13,6 +13,6 @@ const responses=['Lenny calls this headquarters. The mop has seniority.','The ho
 function play(){window.lennyPerformance?.stop();stop();const text=responses[line++%responses.length];if(!ready||!enabled()){say('DALE',text);return}running=true;actor.classList.add('dale-performing');pose(1);later(()=>pose(2),320);later(()=>say('DALE',text),1100)}
 actor.addEventListener('click',e=>{e.stopImmediatePropagation();play()},true);actor.setAttribute('aria-label','Watch Dale slowly blink, give Lenny a side-eye, and reply');
 function scheduleBlink(){clearTimeout(idleTimer);idleTimer=setTimeout(()=>{if(ready&&enabled()&&!running){pose(1);later(()=>pose(0),210)}scheduleBlink()},6500+Math.random()*5000)}scheduleBlink();
-document.querySelector('#motion').addEventListener('click',()=>{if(!enabled())stop()});media.addEventListener('change',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});document.addEventListener('click',e=>{if(running&&!actor.contains(e.target)&&!e.target.closest('#sound')&&!e.target.closest('.lenny'))stop()});
+document.querySelector('#motion').addEventListener('click',()=>{if(!enabled())stop()});media.addEventListener('change',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});document.addEventListener('click',e=>{if(running&&!actor.contains(e.target)&&!e.target.closest('#sound')&&!e.target.closest('.lenny'))stop()},true);
 window.dalePerformance={play,reply,stop};
 })();

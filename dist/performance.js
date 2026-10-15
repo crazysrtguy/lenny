@@ -2,7 +2,7 @@
 (()=>{
 const actor=document.querySelector('.lenny'),world=document.querySelector('#world'),viewport=document.querySelector('#viewport'),scene=document.querySelector('#counter'),media=matchMedia('(prefers-reduced-motion: reduce)');
 actor.innerHTML='<div class="actor-rig"><img class="actor-base" src="assets/lenny.png" alt="Lenny holds his phone and blue slushie"><img class="blink-patch" src="assets/lenny-blink.png" alt="" aria-hidden="true"></div>';
-const rig=actor.querySelector('.actor-rig');const base=actor.querySelector('.actor-base');const watch=document.querySelector('#watch-gag');const poses=['rest','lift-low','lift-high','sip','freeze'].map(n=>'assets/lenny-'+n+'-final.png');
+const rig=actor.querySelector('.actor-rig');const base=actor.querySelector('.actor-base');const watch=document.querySelector('#watch-gag');const poses=['rest','lift-low','lift-high','sip','freeze','talk-a','talk-b'].map(n=>'assets/lenny-'+n+'-final.png');
 function pose(i){if(framesReady){base.src=poses[i];rig.classList.toggle('is-sipping',i!==0)}}
 function loadPose(src){const img=new Image();img.src=src;return img.decode().then(()=>{if(img.naturalWidth!==1145||img.naturalHeight!==1374)throw Error('Frame registration mismatch');return img})}
 Promise.all(poses.map(loadPose)).then(images=>{window.lennyPoseImages=images;framesReady=true;pose(0);watch.disabled=false;watch.textContent='WATCH LENNY TAKE A SIP →';document.querySelector('#gag-status').textContent='Animation ready.'}).catch(()=>{watch.disabled=false;watch.textContent='TALK TO LENNY →';document.querySelector('#gag-status').textContent='Animation could not load. Dialogue is still available.'});let timers=[],blinkTimer=null,running=false,scriptIndex=0,framesReady=false;let targetX=0,targetY=0,x=0,y=0,frame=null,lastTime=0;
@@ -30,7 +30,9 @@ function update(now){frame=null;if(!enabled()){x=y=targetX=targetY=0;world.style
 function request(){if(!frame){lastTime=0;frame=requestAnimationFrame(update)}}
 viewport.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||!enabled())return;const r=viewport.getBoundingClientRect();targetX=((e.clientX-r.left)/r.width-.5)*8;targetY=((e.clientY-r.top)/r.height-.5)*4;request()});viewport.addEventListener('pointerleave',()=>{targetX=targetY=0;request()});
 document.querySelector('#motion').addEventListener('click',()=>{if(!enabled())stop();targetX=targetY=0;request()});media.addEventListener('change',()=>{stop();request()});document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();if(frame)cancelAnimationFrame(frame);frame=null}else{scheduleBlink();request()}});
-// Avoid idle scripts talking over navigation or another interaction.
-document.addEventListener('click',e=>{if(running&&!actor.contains(e.target)&&!e.target.closest('#sound')&&!e.target.closest('#watch-gag'))stop()});
-window.lennyPerformance={stop,play:perform};scheduleBlink();
+// Cancel previous performances before the clicked control starts a new one.
+document.addEventListener('click',e=>{if(running&&!actor.contains(e.target)&&!e.target.closest('#sound'))stop()},true);
+function talk(name,text){if(!String(name).toLowerCase().includes('lenny')||running||!framesReady||!enabled()||scene.classList.contains('hidden'))return;stop();running=true;actor.classList.add('performance-active');const beats=[5,0,6,5,0,5,6,0,5,0,6,5,0];const duration=Math.min(3100,Math.max(1500,String(text).length*35));beats.forEach((p,i)=>later(()=>pose(p),i*duration/beats.length));later(()=>{pose(0);running=false;actor.classList.remove('performance-active')},duration)}
+let talkIndex=0;document.querySelector('#lenny-talk').addEventListener('click',()=>{if(scene.classList.contains('hidden')){changeRoom('counter');return}stop();say('LENNY',exchanges[talkIndex++%exchanges.length][0])});
+window.lennyPerformance={stop,play:perform,talk};scheduleBlink();
 })();
