@@ -126,3 +126,13 @@ canvas.tk-big{width:100%;height:300px;margin:6px 0 4px}
 .lenny-puddle.on{opacity:.88;transform:scale(1)}
 #coin-gag{background:none;border:1px solid #6afaab66;padding:8px 10px;font-size:11px;font-weight:800;letter-spacing:.7px;color:var(--cream);white-space:nowrap}#coin-gag:hover{color:var(--green);border-color:var(--green)}
 @media(max-width:800px){#coin-gag{flex:1}#dock:not(.open) #coin-gag{display:none}}
+/* OPEN sign flicker overlay (sits over the sign baked into the counter art) */
+.open-flicker{position:absolute;border-radius:14px;pointer-events:none;z-index:1;--dim:0;backdrop-filter:brightness(calc(1 - var(--dim)*.8)) saturate(calc(1 - var(--dim)*.55));background:rgba(4,8,16,calc(var(--dim)*.2))}
+.open-flicker:after{content:'';position:absolute;inset:-4px;border-radius:inherit;box-shadow:0 0 22px 4px #ff2d5a55,0 0 40px 8px #2a63ff33;opacity:calc(1 - var(--dim));mix-blend-mode:screen}
+@media(prefers-reduced-motion:reduce){.open-flicker{display:none}}
+
+.open-flicker.store-open{left:.9%;top:25%;width:9.3%;height:14.8%}
+.open-flicker.lot-open{left:13.7%;top:37.7%;width:6.1%;height:8.9%;border-radius:8px}
+.open-flicker.motel{left:87.5%;top:39.5%;width:4.8%;height:3.8%;border-radius:4px}
+.open-flicker.motel:after{box-shadow:0 0 16px 3px #ff743b66}
+.open-flicker.lot-open:after{inset:-3px;box-shadow:0 0 16px 3px #ff2d5a55,0 0 28px 6px #2a63ff33}
