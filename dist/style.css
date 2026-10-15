@@ -180,3 +180,14 @@ canvas.tk-big{width:100%;height:300px;margin:6px 0 4px}
 /* Smoke canvas (lot-smoke.js) draws over the actors, below the hotspots */
 .lot-smoke-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
 .lot-smoke,.lot-puff{display:none}
+
+/* Headlights: glows sit exactly on the lenses of the car art and move with the car */
+.lot-car{display:block}.lot-car .lot-actor-img{display:block;width:100%;height:auto}
+.car-lamps{display:none}
+.lot-car-lamps{position:absolute;inset:0;pointer-events:none;opacity:0}
+.lot-car-lamps i{position:absolute;display:block;border-radius:5px}
+.lot-car-lamps i.lens{background:radial-gradient(ellipse at 50% 55%,#fffbe2 0,#ffe9a4 45%,rgba(255,214,120,.55) 100%);box-shadow:0 0 18px 6px #ffe2879a,0 0 42px 14px #ffd36655;mix-blend-mode:screen}
+.lot-car-lamps i.amber{background:radial-gradient(ellipse,#ffd08a,#ff9a2e 70%);box-shadow:0 0 12px 3px #ff9a2e88;mix-blend-mode:screen}
+.honking .lot-car-lamps{animation:lot-lamp-flash .22s steps(2,end) 4}
+@keyframes lot-lamp-flash{0%,55%{opacity:1}56%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.lot-car-lamps{display:none}}

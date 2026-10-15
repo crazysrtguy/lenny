@@ -60,9 +60,17 @@ Promise.all(preload).then(()=>{
   return a;
  }
 
- // car first (behind), then Lenny, then Dale
- const car=document.createElement('img');car.className='lot-layer lot-car';car.src=CAR.src;car.alt='Rusty red sedan';car.draggable=false;
- car.style.cssText=`left:${POS.car.x}%;top:${POS.car.y}%;width:${POS.car.w}%;z-index:${POS.car.z}`;lot.append(car);
+ // car first (behind), then Lenny, then Dale. The car is a wrapper so its headlight glows ride its bob / bass bounce.
+ const car=document.createElement('div');car.className='lot-layer lot-car';
+ car.style.cssText=`left:${POS.car.x}%;top:${POS.car.y}%;width:${POS.car.w}%;aspect-ratio:1448/1043;z-index:${POS.car.z}`;
+ const carImg=document.createElement('img');carImg.src=CAR.src;carImg.alt='Rusty red sedan';carImg.draggable=false;carImg.className='lot-actor-img';car.append(carImg);
+ // lens boxes measured on lot-car.webp (px of the 1448x1043 art): [x0,y0,x1,y1]; amber = turn signals
+ const LENS=[[100,575,164,638],[178,580,243,643],[658,597,731,670],[745,600,819,672]],AMBER=[[55,570,81,636],[831,603,873,683]];
+ const lamps=document.createElement('div');lamps.className='lot-car-lamps';lamps.setAttribute('aria-hidden','true');
+ for(const [list,cls] of [[LENS,'lens'],[AMBER,'amber']])for(const [x0,y0,x1,y1] of list){
+  const i=document.createElement('i');i.className=cls;
+  i.style.cssText=`left:${x0/1448*100}%;top:${y0/1043*100}%;width:${(x1-x0)/1448*100}%;height:${(y1-y0)/1043*100}%`;lamps.append(i)}
+ car.append(lamps);lot.append(car);
  const lenny=build(LENNY,POS.lenny),dale=build(DALE,POS.dale);
  lot.classList.add('lot-layered');
  if(media.matches||!smoke)return;                    // reduced motion: idle frames, no smoke
