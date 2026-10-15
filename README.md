@@ -8,7 +8,15 @@ Interactive cartoon convenience-store website featuring Lenny and Dale.
 python3 -m http.server 8000 --directory dist
 ```
 
-Open http://localhost:8000. No build or dependencies required. Deploy the `dist` directory on a static host.
+Open http://localhost:8000. No build or dependencies required. Locally the register monitor reads DexScreener/GeckoTerminal directly; on Vercel it uses the cached `/api/token` function (live pump.fun data).
+
+## Deploy on Vercel
+
+`vercel.json` serves `dist/` and Vercel picks up `api/token.js` as a serverless function. Optional env var: `TOKEN_MINT` (defaults to the test token).
+
+## Register monitor
+
+The cash-register screen is a small interactive page (LIVE / CHART / TRADES / BUY tabs). New buys and sells flash on it, hovering magnifies it, and clicking the register opens the full coin page. Token data comes from `api/token.js` (pump.fun first, DexScreener/GeckoTerminal as fallback).
 
 ## Scene animation
 

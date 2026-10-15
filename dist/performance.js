@@ -1,8 +1,8 @@
 /* Gentle, cancellable counter performance. Eye changes never mask the character silhouette. */
 (()=>{
 const actor=document.querySelector('.lenny'),world=document.querySelector('#world'),viewport=document.querySelector('#viewport'),scene=document.querySelector('#counter'),media=matchMedia('(prefers-reduced-motion: reduce)');
-actor.innerHTML='<div class="actor-rig"><img class="actor-base" src="assets/lenny.png" alt="Lenny holds his phone and blue slushie"><img class="blink-patch" src="assets/lenny-blink.png" alt="" aria-hidden="true"></div>';
-const rig=actor.querySelector('.actor-rig');const base=actor.querySelector('.actor-base');const watch=document.querySelector('#watch-gag');const poses=['rest','lift-low','lift-high','sip','freeze','talk-a','talk-b'].map(n=>'assets/lenny-'+n+'-final.png');
+actor.innerHTML='<div class="actor-rig"><img class="actor-base" src="assets/lenny.webp" alt="Lenny holds his phone and blue slushie"><img class="blink-patch" src="assets/lenny-blink.webp" alt="" aria-hidden="true"></div>';
+const rig=actor.querySelector('.actor-rig');const base=actor.querySelector('.actor-base');const watch=document.querySelector('#watch-gag');const poses=['rest','lift-low','lift-high','sip','freeze','talk-a','talk-b'].map(n=>'assets/lenny-'+n+'-final.webp');
 function pose(i){if(framesReady){base.src=poses[i];rig.classList.toggle('is-sipping',i!==0)}}
 function loadPose(src){const img=new Image();img.src=src;return img.decode().then(()=>{if(img.naturalWidth!==1145||img.naturalHeight!==1374)throw Error('Frame registration mismatch');return img})}
 Promise.all(poses.map(loadPose)).then(images=>{window.lennyPoseImages=images;framesReady=true;pose(0);watch.disabled=false;watch.textContent='WATCH LENNY TAKE A SIP →';document.querySelector('#gag-status').textContent='Animation ready.'}).catch(()=>{watch.disabled=false;watch.textContent='TALK TO LENNY →';document.querySelector('#gag-status').textContent='Animation could not load. Dialogue is still available.'});let timers=[],blinkTimer=null,running=false,scriptIndex=0,framesReady=false;let targetX=0,targetY=0,x=0,y=0,frame=null,lastTime=0;

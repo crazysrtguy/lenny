@@ -1,7 +1,7 @@
 /* Fully drawn expression swaps; no head/face silhouette clipping. */
 (()=>{
 const actor=document.querySelector('.dale'),image=actor.querySelector('img'),scene=document.querySelector('#counter'),media=matchMedia('(prefers-reduced-motion: reduce)');
-const paths=['assets/dale.png','assets/dale-blink-final.png','assets/dale-side-eye-final.png','assets/dale-talk-final.png'];let ready=false,running=false,timers=[],idleTimer=null,line=0;
+const paths=['assets/dale.webp','assets/dale-blink-final.webp','assets/dale-side-eye-final.webp','assets/dale-talk-final.webp'];let ready=false,running=false,timers=[],idleTimer=null,line=0;
 function enabled(){return !media.matches&&!document.hidden&&!document.body.classList.contains('motion-paused')&&!scene.classList.contains('hidden')}
 function pose(i){if(ready)image.src=paths[i]}
 function later(fn,ms){const id=setTimeout(fn,ms);timers.push(id);return id}
