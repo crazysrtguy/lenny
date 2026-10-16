@@ -191,3 +191,12 @@ canvas.tk-big{width:100%;height:300px;margin:6px 0 4px}
 .honking .lot-car-lamps{animation:lot-lamp-flash .22s steps(2,end) 4}
 @keyframes lot-lamp-flash{0%,55%{opacity:1}56%,100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.lot-car-lamps{display:none}}
+/* Stockroom Lenny layer */
+.stock-lenny-layer{position:absolute;display:block;z-index:3;pointer-events:none;transform-origin:50% 95%}
+.stock-lenny-layer img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.stock-shadow{position:absolute;left:24.2%;top:81.6%;width:21.4%;height:3.6%;border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,rgba(8,6,4,.62) 0,rgba(8,6,4,.34) 52%,rgba(8,6,4,0) 78%);filter:blur(2px)}
+.stock-lenny-layer.stock-hype{animation:stock-hype .34s ease-in-out infinite alternate}
+.stock-lenny-layer.stock-rage{animation:stock-rage .09s linear infinite alternate}
+@keyframes stock-hype{from{transform:translateY(0)}to{transform:translateY(-.9%)}}
+@keyframes stock-rage{from{transform:translateX(-.18%)}to{transform:translateX(.18%)}}
+@media(prefers-reduced-motion:reduce){.stock-lenny-layer{animation:none!important}}
