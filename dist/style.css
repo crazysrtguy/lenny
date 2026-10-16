@@ -208,3 +208,5 @@ canvas.tk-big{width:100%;height:300px;margin:6px 0 4px}
 .stock-shadow-dale{left:70.87%;top:81.38%;width:11.6%;height:3.4%}
 .stock-dale-layer.stock-shock{animation:stock-rage .11s linear infinite alternate}
 .stock-dale-layer.stock-smug{animation:stock-hype 1.1s ease-in-out infinite alternate}
+/* Counter Dale: nudged down to close the gap under his elbow */
+.dale{top:18.9%}
