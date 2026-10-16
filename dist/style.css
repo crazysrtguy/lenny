@@ -301,3 +301,16 @@ dialog::-webkit-scrollbar-track{background:var(--paper2);border-left:3px solid v
 dialog::-webkit-scrollbar-thumb{background:var(--black);border:2px solid var(--paper2);border-radius:6px}
 
 #bubble{position:fixed!important}
+/* Ultra-wide: fill the width, scroll vertically to look around (the mirror image of the phone's horizontal swipe) */
+.wide-pan{display:none}
+@media(min-aspect-ratio:19/9) and (min-width:801px){
+ .viewport{overflow-x:hidden;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+ .viewport::-webkit-scrollbar{display:none}
+ .world{position:relative;left:auto;top:auto;transform:none;width:100vw;height:auto;aspect-ratio:1672/941}
+ .warp{position:fixed}
+ .wide-pan.on{display:flex;position:fixed;right:14px;top:50%;transform:translateY(-50%);flex-direction:column;gap:10px;z-index:25}
+ .wide-pan button{width:44px;height:44px;border:3px solid var(--black,#0b0d10);border-radius:50%;background:var(--paper,#f2e4bd);color:var(--black,#0b0d10);
+  font:900 16px/1 'Barlow Condensed',sans-serif;box-shadow:3px 4px 0 var(--black,#0b0d10);cursor:pointer;padding:0}
+ .wide-pan button:hover:not(:disabled){transform:translate(1px,1px);box-shadow:2px 3px 0 var(--black,#0b0d10)}
+ .wide-pan button:disabled{opacity:.35;cursor:default}
+}
