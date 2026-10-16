@@ -23,4 +23,9 @@ function sign(roomSel,cls){
 window.makeSignFlicker=sign;
 // Independent timers so the signs never flicker in sync.
 window.signFlicker={store:sign('#counter','store-open'),lotOpen:sign('#parking','lot-open'),motel:sign('#parking','motel')};
+// Stockroom hanging bulb: one flicker timer drives the bulb glow AND a soft dimming of the whole room.
+window.signFlicker.stock=sign('#stockroom','stock-room');
+(()=>{const el=document.querySelector('#stockroom .stock-room');if(!el)return;
+ const bulb=document.createElement('i');bulb.className='stock-bulb-dim';bulb.setAttribute('aria-hidden','true');el.append(bulb)})();
+
 })();
